@@ -1,1 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subject Wise Study Manager</title>
 
+<style>
+body{
+font-family: Arial;
+margin:0;
+padding:0;
+background:#0b1b2b;
+color:white;
+transition: background 0.3s, color 0.3s;
+}
+
+.dark-mode{
+background:#0b1b2b;
+color:white;
+}
+
+.light-mode{
+background:white;
+color:black;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+padding:20px;
+}
+
+h2{text-align:center;}
+
+input[type=text]{
+width:80%;
+padding:10px;
+margin-top:10px;
+border-radius:5px;
+border:none;
+}
+
+button{
+padding:10px 15px;
+margin-top:10px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+.add-btn{background:#28a745; color:white;}
+.delete-btn{background:red; color:white;}
+.mode-btn{background:#ffc107; color:black; float:right;}
+
+ul{list-style:none; padding:0;}
+li{
+background:#1e2f44; 
+margin:5px 0; 
+padding:10px; 
+border-radius:5px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.progress{
+margin:10px 0;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📚 Subject Wise Study Manager</h2>
+<button class="mode-btn" onclick="toggleMode()">☀️ / 🌙</button>
+
+<p>সমগ্র কমপ্লিট: <span id="total">0%</span></p>
+<p>নির্বাচিত সাবজেক্ট কমপ্লিট: <span id="selected">0%</span></p>
+
+<div>
+<input type="text" id="subject" placeholder="নতুন সাবজেক্ট (যেমন: Chemistry, Physics)">
+<button class="add-btn" onclick="addSubject()">+ সাবজেক্ট তৈরি করুন</button>
+</div>
+
+<ul id="subject-list"></ul>
+
+</div>
+
+<script>
+
+// Dark / Light mode
+function toggleMode(){
+document.body.classList.toggle("light-mode");
+document.body.classList.toggle("dark-mode");
+}
+
+// Load from localStorage
+let subjects = JSON.parse(localStorage.getItem("subjects") || "[]");
+updateList();
+
+function addSubject(){
+let name = document.getElementById("subject").value.trim();
+if(name==""){alert("Subject name লিখুন"); return;}
+subjects.push({name:name, done:false});
+document.getElementById("subject").value="";
+updateList();
+saveData();
+}
+
+function deleteSubject(index){
+subjects.splice(index,1);
+updateList();
+saveData();
+}
+
+function toggleDone(index){
+subjects[index].done = !subjects[index].done;
+updateList();
+saveData();
+}
+
+function updateList(){
+let list = document.getElementById("subject-list");
+list.innerHTML="";
+subjects.forEach((sub,i)=>{
+let li=document.createElement("li");
+li.innerHTML=`
+<span onclick="toggleDone(${i})" style="cursor:pointer">
+${sub.done ? "✅ " : "⬜ "} ${sub.name}</span>
+<button class="delete-btn" onclick="deleteSubject(${i})">Delete</button>
+`;
+list.appendChild(li);
+});
+updateProgress();
+}
+
+function updateProgress(){
+let total = subjects.length;
+let doneCount = subjects.filter(s=>s.done).length;
+document.getElementById("total").innerText = total==0 ? "0%" : Math.round(doneCount/total*100)+"%";
+document.getElementById("selected").innerText = doneCount+" / "+total;
+}
+
+function saveData(){
+localStorage.setItem("subjects", JSON.stringify(subjects));
+}
+
+</script>
+
+</body>
+</html>
